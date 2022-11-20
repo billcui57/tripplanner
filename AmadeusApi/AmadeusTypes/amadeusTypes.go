@@ -1,5 +1,7 @@
 package amadeustypes
 
+import types "github/billcui57/tripplanner/Types"
+
 type IAccessTokenRequest struct {
 	GrantType    string `url:"grant_type"`
 	ClientId     string `url:"client_id"`
@@ -35,11 +37,6 @@ type IAddress struct {
 	CountryCode string `json:"country_code"`
 }
 
-type IGeoCode struct {
-	Latitude  float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
-}
-
 type IUnit string
 
 const (
@@ -64,19 +61,19 @@ type IDistance struct {
 }
 
 type IHotel struct {
-	SubType          string    `json:"subType"`
-	Name             string    `json:"name"`
-	TimeZoneName     string    `json:"timeZoneName"`
-	IataCode         string    `json:"iataCode"`
-	Address          IAddress  `json:"address"`
-	GeoCode          IGeoCode  `json:"geoCode"`
-	GooglePlaceId    string    `json: "googlePlaceId"`
-	OpenjetAirportId string    `json: "openjetAirportId"`
-	UicCode          string    `json:"uicCode"`
-	HotelId          string    `json:"hotelId"`
-	ChainCode        string    `json:"chainCode"`
-	Distance         IDistance `json:"distance"`
-	LastUpdate       string    `json:"last_update"`
+	SubType          string         `json:"subType"`
+	Name             string         `json:"name"`
+	TimeZoneName     string         `json:"timeZoneName"`
+	IataCode         string         `json:"iataCode"`
+	Address          IAddress       `json:"address"`
+	GeoCode          types.IGeoCode `json:"geoCode"`
+	GooglePlaceId    string         `json: "googlePlaceId"`
+	OpenjetAirportId string         `json: "openjetAirportId"`
+	UicCode          string         `json:"uicCode"`
+	HotelId          string         `json:"hotelId"`
+	ChainCode        string         `json:"chainCode"`
+	Distance         IDistance      `json:"distance"`
+	LastUpdate       string         `json:"last_update"`
 }
 
 type ILinks struct {

@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	amadeustypes "github/billcui57/tripplanner/AmadeusApi/AmadeusTypes"
+	utils "github/billcui57/tripplanner/Utils"
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/google/go-querystring/query"
-	"github.com/joho/godotenv"
 )
 
 const api = "https://test.api.amadeus.com/v1"
@@ -28,18 +27,10 @@ func apiUrlBuilder(baseUrl string, subUrl string, searchParam string) string {
 	return url
 }
 
-func getEnvVar(varName string) string {
-	envVar := os.Getenv(varName)
-	if envVar == "" {
-		log.Fatal("Env variable not set")
-	}
-	return envVar
-}
-
 func getAccessToken() string {
-	grant_type := getEnvVar("GRANT_TYPE")
-	client_id := getEnvVar("CLIENT_ID")
-	client_secret := getEnvVar("CLIENT_SECRET")
+	grant_type := utils.GetEnvVar("GRANT_TYPE")
+	client_id := utils.GetEnvVar("CLIENT_ID")
+	client_secret := utils.GetEnvVar("CLIENT_SECRET")
 
 	url := apiUrlBuilder(api, "security/oauth2/token", "")
 
@@ -87,7 +78,7 @@ func GetHotelsByGeocode(getHotelsByGeocodeRequest amadeustypes.IGetHotelsByGeoco
 
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodGet, url, nil)
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", AccessToken))
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", accessToken))
 
 	if err != nil {
 		log.Fatal(err)
@@ -111,13 +102,8 @@ func GetHotelsByGeocode(getHotelsByGeocodeRequest amadeustypes.IGetHotelsByGeoco
 
 }
 
-var AccessToken string
+var accessToken string
 
 func init() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	AccessToken = getAccessToken()
+	accessToken = getAccessToken()
 }
