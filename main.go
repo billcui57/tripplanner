@@ -23,9 +23,10 @@ func main() {
 	// 	fmt.Printf("%+v\n", hotel)
 	// }
 
-	origin := types.IGeoCode{Latitude: 44.0533596, Longitude: -79.4668619}
-	destination := types.IGeoCode{Latitude: 44.0526304, Longitude: -79.4484726}
+	origin := types.IGeoCode{Latitude: 44.1067012, Longitude: -79.4410091}
+	middle := types.IGeoCode{Latitude: 43.597729, Longitude: -80.339313}
+	destination := types.IGeoCode{Latitude: 40.3390486, Longitude: -80.0671657}
 
-	routeService.GetRoute([]types.OriginDestination{{Origin: origin, Destination: destination}})
+	routeService.Test([]types.IGeoCode{origin, middle, destination})
 
 }
