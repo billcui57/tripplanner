@@ -1,7 +1,7 @@
 package main
 
 import (
-	routeService "github/billcui57/tripplanner/RouteService"
+	tripplanService "github/billcui57/tripplanner/TripplanService"
 	types "github/billcui57/tripplanner/Types"
 	"log"
 
@@ -27,6 +27,6 @@ func main() {
 	middle := types.IGeoCode{Latitude: 43.597729, Longitude: -80.339313}
 	destination := types.IGeoCode{Latitude: 40.3390486, Longitude: -80.0671657}
 
-	routeService.Test([]types.IGeoCode{origin, middle, destination})
+	tripplanService.PlanTrip([]types.IGeoCode{origin, middle, destination}, 2)
 
 }

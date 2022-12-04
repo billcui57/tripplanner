@@ -9,3 +9,18 @@ type OriginDestination struct {
 	Origin      IGeoCode
 	Destination IGeoCode
 }
+
+type Leg struct {
+	Distance        int
+	DurationInHours float64
+	StartLocation   IGeoCode
+	EndLocation     IGeoCode
+}
+
+type DaysDrive struct {
+	Legs            []Leg
+	DurationInHours float64
+	StartLocation   IGeoCode
+	EndLocation     IGeoCode
+	Distance        int
+}

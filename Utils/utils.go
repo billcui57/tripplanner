@@ -46,3 +46,43 @@ func TextualizeGeoCodes(geoCodes []types.IGeoCode, prefix string) []string {
 	}
 	return result
 }
+
+func SampleNGeoCodes(geoCodes []types.IGeoCode, N int) []types.IGeoCode {
+	if N < 2 {
+		log.Fatal("Must sample enough points to include start and end")
+	}
+
+	chunkSize := len(geoCodes) / N
+
+	var sampledGeoCodes []types.IGeoCode
+	for {
+		if len(geoCodes) == 0 {
+			break
+		}
+
+		if len(geoCodes) < chunkSize {
+			chunkSize = len(geoCodes)
+			sampledGeoCodes = append(sampledGeoCodes, geoCodes[0:chunkSize][len(geoCodes)-1])
+		} else {
+			sampledGeoCodes = append(sampledGeoCodes, geoCodes[0:chunkSize][0])
+		}
+
+		geoCodes = geoCodes[chunkSize:]
+
+	}
+	return sampledGeoCodes
+}
+
+func GoogleLegToLeg(leg maps.Leg) types.Leg {
+	return types.Leg{Distance: leg.Distance.Meters, DurationInHours: leg.Duration.Hours(), StartLocation: LatLngToGeoCode(leg.StartLocation), EndLocation: LatLngToGeoCode(leg.EndLocation)}
+}
+
+func GoogleLegsToLegs(legs []*maps.Leg) []types.Leg {
+
+	result := make([]types.Leg, len(legs))
+	for i, leg := range legs {
+		result[i] = GoogleLegToLeg(*leg)
+	}
+
+	return result
+}

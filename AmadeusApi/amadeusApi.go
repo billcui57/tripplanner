@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	amadeustypes "github/billcui57/tripplanner/AmadeusApi/AmadeusTypes"
+	types "github/billcui57/tripplanner/Types"
 	utils "github/billcui57/tripplanner/Utils"
 	"io"
 	"log"
@@ -27,7 +28,11 @@ func apiUrlBuilder(baseUrl string, subUrl string, searchParam string) string {
 	return url
 }
 
-func getAccessToken() string {
+func getAccessToken() {
+	if accessToken != "" {
+		return
+	}
+
 	grant_type := utils.GetEnvVar("GRANT_TYPE")
 	client_id := utils.GetEnvVar("CLIENT_ID")
 	client_secret := utils.GetEnvVar("CLIENT_SECRET")
@@ -66,11 +71,11 @@ func getAccessToken() string {
 		log.Fatal(err)
 	}
 
-	return res.AccessToken
+	accessToken = res.AccessToken
 }
 
 func GetHotelsByGeocode(getHotelsByGeocodeRequest amadeustypes.IGetHotelsByGeocodeRequest) amadeustypes.IGetHotelsByGeocodeResponse {
-
+	getAccessToken()
 	v, _ := query.Values(getHotelsByGeocodeRequest)
 	searchParams := v.Encode()
 
@@ -99,11 +104,20 @@ func GetHotelsByGeocode(getHotelsByGeocodeRequest amadeustypes.IGetHotelsByGeoco
 		log.Fatal(err)
 	}
 	return res
+}
 
+func FindHotelForDayDrive(dayDrive types.DaysDrive) {
+	endLocation := dayDrive.Legs[len(dayDrive.Legs)-1].EndLocation
+	hotelsByGeoCodeRequest := amadeustypes.IGetHotelsByGeocodeRequest{
+		Latitude:  endLocation.Latitude,
+		Longitude: endLocation.Longitude,
+		Radius:    10, RadiusUnit: "KM", HotelSource: "ALL",
+	}
+	hotelsByGeoCodeResponse := GetHotelsByGeocode(hotelsByGeoCodeRequest)
+	fmt.Println("Found hotels:")
+	for _, hotel := range hotelsByGeoCodeResponse.Data {
+		fmt.Println("\t%v", hotel.Name)
+	}
 }
 
 var accessToken string
-
-func init() {
-	accessToken = getAccessToken()
-}
