@@ -1,10 +1,10 @@
 package main
 
 import (
-	tripplanService "github/billcui57/tripplanner/TripplanService"
-	types "github/billcui57/tripplanner/Types"
+	tripplancontroller "github/billcui57/tripplanner/Controllers/TripplanController"
 	"log"
 
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -23,10 +23,15 @@ func main() {
 	// 	fmt.Printf("%+v\n", hotel)
 	// }
 
-	origin := types.IGeoCode{Latitude: 44.1067012, Longitude: -79.4410091}
-	middle := types.IGeoCode{Latitude: 43.597729, Longitude: -80.339313}
-	destination := types.IGeoCode{Latitude: 40.3390486, Longitude: -80.0671657}
+	// origin := types.IGeoCode{Latitude: 44.1067012, Longitude: -79.4410091}
+	// middle := types.IGeoCode{Latitude: 43.597729, Longitude: -80.339313}
+	// destination := types.IGeoCode{Latitude: 40.3390486, Longitude: -80.0671657}
 
-	tripplanService.PlanTrip([]types.IGeoCode{origin, middle, destination}, 2)
+	// tripplanService.PlanTrip([]types.IGeoCode{origin, middle, destination}, 2)
 
+	engine := gin.Default()
+
+	engine.POST("/plan-trip", tripplancontroller.Plantrip)
+
+	engine.Run()
 }

@@ -45,41 +45,6 @@ func GetRouteGeoCodes(sites []types.IGeoCode) []types.IGeoCode {
 	return utils.LatLngsToGeoCodes(latLngs)
 }
 
-// func Test(sites []types.IGeoCode) {
-// 	geoCodes := GetRouteGeoCodes(sites)
-
-// 	client, err := maps.NewClient(maps.WithAPIKey(utils.GetEnvVar("GOOGLE_API_KEY")))
-
-// 	origins := []types.IGeoCode{}
-// 	destinations := []types.IGeoCode{}
-
-// 	if len(geoCodes) < 2 {
-// 		log.Fatalln("Not enough geoCodes available")
-// 	}
-
-// 	shortenedGeoCodes := utils.SampleNGeoCodes(geoCodes, 10)
-
-// 	for i := 0; i < len(shortenedGeoCodes)-1; i++ {
-// 		origin := shortenedGeoCodes[i]
-// 		destination := shortenedGeoCodes[i+1]
-// 		origins = append(origins, origin)
-// 		destinations = append(destinations, destination)
-// 	}
-
-// 	request := &maps.DistanceMatrixRequest{
-// 		Origins:      utils.TextualizeGeoCodes(origins, ""),
-// 		Destinations: utils.TextualizeGeoCodes(destinations, ""),
-// 		Mode:         maps.TravelModeDriving,
-// 	}
-
-// 	distanceMatrix, err := client.DistanceMatrix(context.Background(), request)
-// 	if err != nil {
-// 		log.Fatalf("Distance Matrix API fatal error: %s", err)
-// 	}
-// 	fmt.Println(distanceMatrix.Rows[0])
-
-// }
-
 func SplitRouteIntoLegs(sites []types.IGeoCode) []types.Leg {
 	geoCodes := GetRouteGeoCodes(sites)
 	shortenedGeoCodes := utils.SampleNGeoCodes(geoCodes, 10)
