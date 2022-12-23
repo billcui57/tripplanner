@@ -9,15 +9,15 @@ import (
 	"googlemaps.github.io/maps"
 )
 
-func GetRouteGeoCodes(sites []types.IGeoCode) []types.IGeoCode {
+func GetRouteGeoCodes(sites []string) []types.IGeoCode {
 	if len(sites) < 2 {
 		log.Fatalln("Not enough sites to get route")
 	}
 	client, err := maps.NewClient(maps.WithAPIKey(utils.GetEnvVar("GOOGLE_API_KEY")))
 
-	first := utils.TextualizeGeoCode(sites[0], "")
-	last := utils.TextualizeGeoCode(sites[len(sites)-1], "")
-	rest := utils.TextualizeGeoCodes(sites[1:len(sites)-1], "via:")
+	first := sites[0]
+	last := sites[len(sites)-1]
+	rest := utils.ConvertSitesToWaypoints(sites[1 : len(sites)-1])
 
 	request := &maps.DirectionsRequest{
 		Origin:        first,
@@ -45,7 +45,7 @@ func GetRouteGeoCodes(sites []types.IGeoCode) []types.IGeoCode {
 	return utils.LatLngsToGeoCodes(latLngs)
 }
 
-func SplitRouteIntoLegs(sites []types.IGeoCode) []types.Leg {
+func SplitRouteIntoLegs(sites []string) []types.Leg {
 	geoCodes := GetRouteGeoCodes(sites)
 	shortenedGeoCodes := utils.SampleNGeoCodes(geoCodes, 10)
 
@@ -75,7 +75,7 @@ func SplitRouteIntoLegs(sites []types.IGeoCode) []types.Leg {
 	return utils.GoogleLegsToLegs(routes[0].Legs)
 }
 
-func GetDaysDrives(sites []types.IGeoCode, maxDrivingHours float64) []types.DaysDrive {
+func GetDaysDrives(sites []string, maxDrivingHours float64) []types.DaysDrive {
 
 	legs := SplitRouteIntoLegs(sites)
 
@@ -95,7 +95,7 @@ func GetDaysDrives(sites []types.IGeoCode, maxDrivingHours float64) []types.Days
 
 		if totalDrivingDuration+leg.DurationInHours > maxDrivingHours {
 			endLocation = leg.EndLocation
-			daysDrives = append(daysDrives, types.DaysDrive{Legs: dayDriveLegs, DurationInHours: totalDrivingDuration, Distance: totalDrivingDistance, EndLocation: endLocation, StartLocation: startLocation})
+			daysDrives = append(daysDrives, types.DaysDrive{Legs: dayDriveLegs, DurationInHours: totalDrivingDuration, DistanceInMeters: totalDrivingDistance, EndLocation: endLocation, StartLocation: startLocation})
 			totalDrivingDuration = 0
 			dayDriveLegs = []types.Leg{}
 			startLocation = leg.EndLocation
@@ -103,7 +103,7 @@ func GetDaysDrives(sites []types.IGeoCode, maxDrivingHours float64) []types.Days
 
 		dayDriveLegs = append(dayDriveLegs, leg)
 		totalDrivingDuration += leg.DurationInHours
-		totalDrivingDistance += leg.Distance
+		totalDrivingDistance += leg.DistanceInMeters
 	}
 
 	return daysDrives

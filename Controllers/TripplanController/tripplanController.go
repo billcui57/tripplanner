@@ -1,13 +1,14 @@
 package tripplancontroller
 
 import (
+	tripplanService "github/billcui57/tripplanner/Services/TripplanService"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type PlanTripInput struct {
-	Types []string `json:"types" binding:"required"`
+	Sites []string `json:"sites" binding:"required"`
 }
 
 func Plantrip(context *gin.Context) {
@@ -17,6 +18,8 @@ func Plantrip(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"data": input})
+	daysDriveWithHotels := tripplanService.PlanTrip(input.Sites, 2)
+
+	context.JSON(http.StatusOK, gin.H{"data": daysDriveWithHotels})
 
 }

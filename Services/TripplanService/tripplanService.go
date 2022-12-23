@@ -1,16 +1,17 @@
 package tripplanService
 
 import (
-	"fmt"
 	amadeusService "github/billcui57/tripplanner/Services/HotelService"
 	routeService "github/billcui57/tripplanner/Services/RouteService"
 	types "github/billcui57/tripplanner/Types"
 )
 
-func PlanTrip(sites []types.IGeoCode, maxDrivingHours float64) {
+func PlanTrip(sites []string, maxDrivingHours float64) []types.DaysDriveWithHotels {
 	dayDrives := routeService.GetDaysDrives(sites, maxDrivingHours)
-	for _, dayDrive := range dayDrives {
-		fmt.Printf("Driving for %v hours from %v to %v", dayDrive.DurationInHours, dayDrive.StartLocation, dayDrive.EndLocation)
-		amadeusService.FindHotelForDayDrive(dayDrive)
+	dayDrivesWithHotels := make([]types.DaysDriveWithHotels, len(dayDrives))
+	for i, dayDrive := range dayDrives {
+		hotelGeoCodes := amadeusService.FindHotelForDayDrive(dayDrive)
+		dayDrivesWithHotels[i] = types.DaysDriveWithHotels{DaysDrive: dayDrive, HotelGeoCodes: hotelGeoCodes}
 	}
+	return dayDrivesWithHotels
 }

@@ -47,6 +47,18 @@ func TextualizeGeoCodes(geoCodes []types.IGeoCode, prefix string) []string {
 	return result
 }
 
+func ConvertSiteToWaypoint(site string) string {
+	return fmt.Sprintf("via:%v", site)
+}
+
+func ConvertSitesToWaypoints(sites []string) []string {
+	result := make([]string, len(sites))
+	for i, site := range sites {
+		result[i] = ConvertSiteToWaypoint(site)
+	}
+	return result
+}
+
 func SampleNGeoCodes(geoCodes []types.IGeoCode, N int) []types.IGeoCode {
 	if N < 2 {
 		log.Fatal("Must sample enough points to include start and end")
@@ -74,7 +86,7 @@ func SampleNGeoCodes(geoCodes []types.IGeoCode, N int) []types.IGeoCode {
 }
 
 func GoogleLegToLeg(leg maps.Leg) types.Leg {
-	return types.Leg{Distance: leg.Distance.Meters, DurationInHours: leg.Duration.Hours(), StartLocation: LatLngToGeoCode(leg.StartLocation), EndLocation: LatLngToGeoCode(leg.EndLocation)}
+	return types.Leg{DistanceInMeters: leg.Distance.Meters, DurationInHours: leg.Duration.Hours(), StartLocation: LatLngToGeoCode(leg.StartLocation), EndLocation: LatLngToGeoCode(leg.EndLocation)}
 }
 
 func GoogleLegsToLegs(legs []*maps.Leg) []types.Leg {

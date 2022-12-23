@@ -5,22 +5,22 @@ type IGeoCode struct {
 	Longitude float64 `json:"longitude"`
 }
 
-type OriginDestination struct {
-	Origin      IGeoCode
-	Destination IGeoCode
-}
-
 type Leg struct {
-	Distance        int
-	DurationInHours float64
-	StartLocation   IGeoCode
-	EndLocation     IGeoCode
+	DistanceInMeters int      `json:"distance_in_meters"`
+	DurationInHours  float64  `json:"duration_in_hours"`
+	StartLocation    IGeoCode `json:"start_location"`
+	EndLocation      IGeoCode `json:"end_location"`
 }
 
 type DaysDrive struct {
-	Legs            []Leg
-	DurationInHours float64
-	StartLocation   IGeoCode
-	EndLocation     IGeoCode
-	Distance        int
+	Legs             []Leg    `json:"legs"`
+	DurationInHours  float64  `json:"duration_in_hours"`
+	StartLocation    IGeoCode `json:"start_location"`
+	EndLocation      IGeoCode `json:"end_location"`
+	DistanceInMeters int      `json:"distance_in_meters"`
+}
+
+type DaysDriveWithHotels struct {
+	DaysDrive     DaysDrive  `json:"days_drive"`
+	HotelGeoCodes []IGeoCode `json:"hotel_geocodes"`
 }
