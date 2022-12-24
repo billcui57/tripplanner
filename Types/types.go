@@ -7,29 +7,29 @@ type IGeoCode struct {
 	Longitude float64 `json:"longitude"`
 }
 
-type Leg struct {
+type ILeg struct {
 	DistanceInMeters int      `json:"distance_in_meters"`
 	DurationInHours  float64  `json:"duration_in_hours"`
 	StartLocation    IGeoCode `json:"start_location"`
 	EndLocation      IGeoCode `json:"end_location"`
 }
 
-type Step struct {
+type IStep struct {
 	DistanceInMeters int      `json:"distance_in_meters"`
 	DurationInHours  float64  `json:"duration_in_hours"`
 	StartLocation    IGeoCode `json:"start_location"`
 	EndLocation      IGeoCode `json:"end_location"`
 }
 
-type DayDrive struct {
+type IDayDrive struct {
 	DurationInHours  float64  `json:"duration_in_hours"`
 	StartLocation    IGeoCode `json:"start_location"`
 	EndLocation      IGeoCode `json:"end_location"`
 	DistanceInMeters int      `json:"distance_in_meters"`
 }
 
-type DayDriveWithHotel struct {
-	DayDrive      DayDrive   `json:"day_drive"`
+type IDayDriveWithHotel struct {
+	DayDrive      IDayDrive  `json:"day_drive"`
 	HotelGeoCodes []IGeoCode `json:"hotel_geocodes"`
 }
 

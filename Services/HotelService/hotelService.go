@@ -106,7 +106,7 @@ func GetHotelsByGeocode(getHotelsByGeocodeRequest amadeustypes.IGetHotelsByGeoco
 	return res
 }
 
-func FindHotelForDayDrive(dayDrive types.DayDrive, hotelFindingRadius int) []types.IGeoCode {
+func FindHotelForDayDrive(dayDrive types.IDayDrive, hotelFindingRadius int) []types.IGeoCode {
 	endLocation := dayDrive.EndLocation
 	hotelsByGeoCodeRequest := amadeustypes.IGetHotelsByGeocodeRequest{
 		Latitude:  endLocation.Latitude,

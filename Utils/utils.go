@@ -85,13 +85,13 @@ func SampleNGeoCodes(geoCodes []types.IGeoCode, N int) []types.IGeoCode {
 	return sampledGeoCodes
 }
 
-func GoogleLegToLeg(leg maps.Leg) types.Leg {
-	return types.Leg{DistanceInMeters: leg.Distance.Meters, DurationInHours: leg.Duration.Hours(), StartLocation: LatLngToGeoCode(leg.StartLocation), EndLocation: LatLngToGeoCode(leg.EndLocation)}
+func GoogleLegToLeg(leg maps.Leg) types.ILeg {
+	return types.ILeg{DistanceInMeters: leg.Distance.Meters, DurationInHours: leg.Duration.Hours(), StartLocation: LatLngToGeoCode(leg.StartLocation), EndLocation: LatLngToGeoCode(leg.EndLocation)}
 }
 
-func GoogleLegsToLegs(legs []*maps.Leg) []types.Leg {
+func GoogleLegsToLegs(legs []*maps.Leg) []types.ILeg {
 
-	result := make([]types.Leg, len(legs))
+	result := make([]types.ILeg, len(legs))
 	for i, leg := range legs {
 		result[i] = GoogleLegToLeg(*leg)
 	}
@@ -99,13 +99,13 @@ func GoogleLegsToLegs(legs []*maps.Leg) []types.Leg {
 	return result
 }
 
-func GoogleSteptoStep(step maps.Step) types.Step {
-	return types.Step{DistanceInMeters: step.Distance.Meters, DurationInHours: step.Duration.Hours(), StartLocation: LatLngToGeoCode(step.StartLocation), EndLocation: LatLngToGeoCode(step.EndLocation)}
+func GoogleSteptoStep(step maps.Step) types.IStep {
+	return types.IStep{DistanceInMeters: step.Distance.Meters, DurationInHours: step.Duration.Hours(), StartLocation: LatLngToGeoCode(step.StartLocation), EndLocation: LatLngToGeoCode(step.EndLocation)}
 }
 
-func GoogleStepstoSteps(steps []*maps.Step) []types.Step {
+func GoogleStepstoSteps(steps []*maps.Step) []types.IStep {
 
-	result := make([]types.Step, len(steps))
+	result := make([]types.IStep, len(steps))
 	for i, step := range steps {
 		result[i] = GoogleSteptoStep(*step)
 	}
