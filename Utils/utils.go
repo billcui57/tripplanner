@@ -47,11 +47,11 @@ func TextualizeGeoCodes(geoCodes []types.IGeoCode, prefix string) []string {
 	return result
 }
 
-func ConvertSiteToWaypoint(site string) string {
-	return fmt.Sprintf("via:%v", site)
+func ConvertSiteToWaypoint(site types.ISite) string {
+	return fmt.Sprintf("via:%v", site.Name)
 }
 
-func ConvertSitesToWaypoints(sites []string) []string {
+func ConvertSitesToWaypoints(sites []types.ISite) []string {
 	result := make([]string, len(sites))
 	for i, site := range sites {
 		result[i] = ConvertSiteToWaypoint(site)
@@ -94,6 +94,20 @@ func GoogleLegsToLegs(legs []*maps.Leg) []types.Leg {
 	result := make([]types.Leg, len(legs))
 	for i, leg := range legs {
 		result[i] = GoogleLegToLeg(*leg)
+	}
+
+	return result
+}
+
+func GoogleSteptoStep(step maps.Step) types.Step {
+	return types.Step{DistanceInMeters: step.Distance.Meters, DurationInHours: step.Duration.Hours(), StartLocation: LatLngToGeoCode(step.StartLocation), EndLocation: LatLngToGeoCode(step.EndLocation)}
+}
+
+func GoogleStepstoSteps(steps []*maps.Step) []types.Step {
+
+	result := make([]types.Step, len(steps))
+	for i, step := range steps {
+		result[i] = GoogleSteptoStep(*step)
 	}
 
 	return result

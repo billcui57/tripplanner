@@ -9,14 +9,14 @@ import (
 	"googlemaps.github.io/maps"
 )
 
-func GetRouteGeoCodes(sites []string) []types.IGeoCode {
+func GetRouteSteps(sites []types.ISite) []types.Step {
 	if len(sites) < 2 {
 		log.Fatalln("Not enough sites to get route")
 	}
 	client, err := maps.NewClient(maps.WithAPIKey(utils.GetEnvVar("GOOGLE_API_KEY")))
 
-	first := sites[0]
-	last := sites[len(sites)-1]
+	first := sites[0].Name
+	last := sites[len(sites)-1].Name
 	rest := utils.ConvertSitesToWaypoints(sites[1 : len(sites)-1])
 
 	request := &maps.DirectionsRequest{
@@ -37,73 +37,42 @@ func GetRouteGeoCodes(sites []string) []types.IGeoCode {
 	}
 
 	route := routes[0]
-	latLngs, err := route.OverviewPolyline.Decode()
-	if err != nil {
-		log.Fatalf("fatal error: %s", err)
+
+	steps := []*maps.Step{}
+
+	for _, leg := range route.Legs {
+		steps = append(steps, leg.Steps...)
 	}
 
-	return utils.LatLngsToGeoCodes(latLngs)
+	return utils.GoogleStepstoSteps(steps)
 }
 
-func SplitRouteIntoLegs(sites []string) []types.Leg {
-	geoCodes := GetRouteGeoCodes(sites)
-	shortenedGeoCodes := utils.SampleNGeoCodes(geoCodes, 10)
+func GetDaysDrives(sites []types.ISite, maxDrivingHours float64) []types.DayDrive {
 
-	client, err := maps.NewClient(maps.WithAPIKey(utils.GetEnvVar("GOOGLE_API_KEY")))
+	steps := GetRouteSteps(sites)
 
-	first := utils.TextualizeGeoCode(shortenedGeoCodes[0], "")
-	last := utils.TextualizeGeoCode(shortenedGeoCodes[len(shortenedGeoCodes)-1], "")
-	rest := utils.TextualizeGeoCodes(shortenedGeoCodes[1:len(shortenedGeoCodes)-1], "")
+	daysDrives := []types.DayDrive{}
 
-	request := &maps.DirectionsRequest{
-		Origin:        first,
-		Destination:   last,
-		Mode:          maps.TravelModeDriving,
-		DepartureTime: "now",
-		Waypoints:     rest,
-	}
-
-	routes, _, err := client.Directions(context.Background(), request)
-	if err != nil {
-		log.Fatalf("Directions API fatal error: %s", err)
-	}
-
-	if len(routes) == 0 {
-		log.Fatal("No routes rip")
-	}
-
-	return utils.GoogleLegsToLegs(routes[0].Legs)
-}
-
-func GetDaysDrives(sites []string, maxDrivingHours float64) []types.DaysDrive {
-
-	legs := SplitRouteIntoLegs(sites)
-
-	daysDrives := []types.DaysDrive{}
-
-	dayDriveLegs := []types.Leg{}
 	var totalDrivingDuration float64
 	totalDrivingDuration = 0
 	var totalDrivingDistance int
 	totalDrivingDistance = 0
 	var startLocation types.IGeoCode
 	var endLocation types.IGeoCode
-	for i, leg := range legs {
+	for i, step := range steps {
 		if i == 0 {
-			startLocation = leg.StartLocation
+			startLocation = step.StartLocation
 		}
 
-		if totalDrivingDuration+leg.DurationInHours > maxDrivingHours {
-			endLocation = leg.EndLocation
-			daysDrives = append(daysDrives, types.DaysDrive{Legs: dayDriveLegs, DurationInHours: totalDrivingDuration, DistanceInMeters: totalDrivingDistance, EndLocation: endLocation, StartLocation: startLocation})
+		if (totalDrivingDuration+step.DurationInHours > maxDrivingHours) || (i == len(steps)-1) {
+			endLocation = step.EndLocation
+			daysDrives = append(daysDrives, types.DayDrive{DurationInHours: totalDrivingDuration, DistanceInMeters: totalDrivingDistance, EndLocation: endLocation, StartLocation: startLocation})
 			totalDrivingDuration = 0
-			dayDriveLegs = []types.Leg{}
-			startLocation = leg.EndLocation
+			startLocation = step.EndLocation
 		}
 
-		dayDriveLegs = append(dayDriveLegs, leg)
-		totalDrivingDuration += leg.DurationInHours
-		totalDrivingDistance += leg.DistanceInMeters
+		totalDrivingDuration += step.DurationInHours
+		totalDrivingDistance += step.DistanceInMeters
 	}
 
 	return daysDrives

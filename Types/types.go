@@ -12,15 +12,32 @@ type Leg struct {
 	EndLocation      IGeoCode `json:"end_location"`
 }
 
-type DaysDrive struct {
-	Legs             []Leg    `json:"legs"`
+type Step struct {
+	DistanceInMeters int      `json:"distance_in_meters"`
+	DurationInHours  float64  `json:"duration_in_hours"`
+	StartLocation    IGeoCode `json:"start_location"`
+	EndLocation      IGeoCode `json:"end_location"`
+}
+
+type DayDrive struct {
 	DurationInHours  float64  `json:"duration_in_hours"`
 	StartLocation    IGeoCode `json:"start_location"`
 	EndLocation      IGeoCode `json:"end_location"`
 	DistanceInMeters int      `json:"distance_in_meters"`
 }
 
-type DaysDriveWithHotels struct {
-	DaysDrive     DaysDrive  `json:"days_drive"`
+type DayDriveWithHotel struct {
+	DayDrive      DayDrive   `json:"day_drive"`
 	HotelGeoCodes []IGeoCode `json:"hotel_geocodes"`
+}
+
+type IResultStatus string
+
+const (
+	GOOD           IResultStatus = "good"
+	MISSING_HOTELS               = "missing_hotels"
+)
+
+type ISite struct {
+	Name string `json:"name" binding:"required"`
 }
