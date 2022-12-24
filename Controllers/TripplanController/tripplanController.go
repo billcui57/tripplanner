@@ -1,6 +1,7 @@
 package tripplancontroller
 
 import (
+	"errors"
 	tripplanService "github/billcui57/tripplanner/Services/TripplanService"
 	types "github/billcui57/tripplanner/Types"
 	"net/http"
@@ -16,7 +17,6 @@ type IPlanTripInput struct {
 
 type IPlanTripResponse struct {
 	DayDriveWithHotels []types.DayDriveWithHotel `json:"day_drive_with_hotels"`
-	ResultStatus       types.IResultStatus       `json:"result_status"`
 	Sites              []types.ISite             `json:"sites"`
 }
 
@@ -27,10 +27,23 @@ func Plantrip(context *gin.Context) {
 		return
 	}
 
-	dayDriveWithHotels, resultStatus := tripplanService.PlanTrip(input.Sites, input.MaxDrivingHours, input.HotelFindingRadius)
+	dayDriveWithHotels, err := tripplanService.PlanTrip(input.Sites, input.MaxDrivingHours, input.HotelFindingRadius)
 
-	response := IPlanTripResponse{DayDriveWithHotels: dayDriveWithHotels, ResultStatus: resultStatus, Sites: input.Sites}
+	if err != nil {
+		switch {
+		case errors.Is(err, types.ErrorDirectionApiFatal):
+			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		case errors.Is(err, types.ErrorNoHotelFound):
+			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		case errors.Is(err, types.ErrorNoRoutesFound):
+			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		case errors.Is(err, types.ErrorNotEnoughSites):
+			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		}
+		return
+	}
 
+	response := IPlanTripResponse{DayDriveWithHotels: dayDriveWithHotels, Sites: input.Sites}
 	context.JSON(http.StatusOK, response)
 
 }

@@ -2,16 +2,18 @@ package routeService
 
 import (
 	"context"
+	"fmt"
 	types "github/billcui57/tripplanner/Types"
 	utils "github/billcui57/tripplanner/Utils"
-	"log"
 
 	"googlemaps.github.io/maps"
 )
 
-func GetRouteSteps(sites []types.ISite) []types.Step {
+// add api for popularing sites latlng from site name
+
+func GetRouteSteps(sites []types.ISite) ([]types.Step, error) { //change to use sites.latlng and not sites.name
 	if len(sites) < 2 {
-		log.Fatalln("Not enough sites to get route")
+		return nil, types.ErrorNotEnoughSites
 	}
 	client, err := maps.NewClient(maps.WithAPIKey(utils.GetEnvVar("GOOGLE_API_KEY")))
 
@@ -29,11 +31,12 @@ func GetRouteSteps(sites []types.ISite) []types.Step {
 
 	routes, _, err := client.Directions(context.Background(), request)
 	if err != nil {
-		log.Fatalf("Directions API fatal error: %s", err)
+		fmt.Printf("Directions API fatal error: %s\n", err)
+		return nil, types.ErrorDirectionApiFatal
 	}
 
 	if len(routes) == 0 {
-		log.Fatal("No routes rip")
+		return nil, types.ErrorNoRoutesFound
 	}
 
 	route := routes[0]
@@ -44,12 +47,15 @@ func GetRouteSteps(sites []types.ISite) []types.Step {
 		steps = append(steps, leg.Steps...)
 	}
 
-	return utils.GoogleStepstoSteps(steps)
+	return utils.GoogleStepstoSteps(steps), nil
 }
 
-func GetDaysDrives(sites []types.ISite, maxDrivingHours float64) []types.DayDrive {
+func GetDaysDrives(sites []types.ISite, maxDrivingHours float64) ([]types.DayDrive, error) {
 
-	steps := GetRouteSteps(sites)
+	steps, err := GetRouteSteps(sites)
+	if err != nil {
+		return nil, err
+	}
 
 	daysDrives := []types.DayDrive{}
 
@@ -75,5 +81,5 @@ func GetDaysDrives(sites []types.ISite, maxDrivingHours float64) []types.DayDriv
 		totalDrivingDistance += step.DistanceInMeters
 	}
 
-	return daysDrives
+	return daysDrives, nil
 }

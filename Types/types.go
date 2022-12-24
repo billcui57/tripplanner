@@ -1,5 +1,7 @@
 package types
 
+import "errors"
+
 type IGeoCode struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
@@ -31,13 +33,11 @@ type DayDriveWithHotel struct {
 	HotelGeoCodes []IGeoCode `json:"hotel_geocodes"`
 }
 
-type IResultStatus string
-
-const (
-	GOOD           IResultStatus = "good"
-	MISSING_HOTELS               = "missing_hotels"
-)
-
 type ISite struct {
 	Name string `json:"name" binding:"required"`
 }
+
+var ErrorNotEnoughSites = errors.New("Not enough sites to get route")
+var ErrorDirectionApiFatal = errors.New("Something went wrong with Directions API")
+var ErrorNoRoutesFound = errors.New("Could not find a route")
+var ErrorNoHotelFound = errors.New("Could not find a hotel in route")
