@@ -34,7 +34,7 @@ type IDayDriveWithHotel struct {
 }
 
 type ISite struct {
-	Name string `json:"name" binding:"required"`
+	Location IGeoCode `json:"location"`
 }
 
 var ErrorNotEnoughSites = errors.New("Not enough sites to get route")

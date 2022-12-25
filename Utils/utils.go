@@ -47,18 +47,6 @@ func TextualizeGeoCodes(geoCodes []types.IGeoCode, prefix string) []string {
 	return result
 }
 
-func ConvertSiteToWaypoint(site types.ISite) string {
-	return fmt.Sprintf("via:%v", site.Name)
-}
-
-func ConvertSitesToWaypoints(sites []types.ISite) []string {
-	result := make([]string, len(sites))
-	for i, site := range sites {
-		result[i] = ConvertSiteToWaypoint(site)
-	}
-	return result
-}
-
 func SampleNGeoCodes(geoCodes []types.IGeoCode, N int) []types.IGeoCode {
 	if N < 2 {
 		log.Fatal("Must sample enough points to include start and end")

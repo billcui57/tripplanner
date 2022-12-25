@@ -17,9 +17,13 @@ func GetRouteSteps(sites []types.ISite) ([]types.IStep, error) { //change to use
 	}
 	client, err := maps.NewClient(maps.WithAPIKey(utils.GetEnvVar("GOOGLE_API_KEY")))
 
-	first := sites[0].Name
-	last := sites[len(sites)-1].Name
-	rest := utils.ConvertSitesToWaypoints(sites[1 : len(sites)-1])
+	first := utils.TextualizeGeoCode(sites[0].Location, "")
+	last := utils.TextualizeGeoCode(sites[len(sites)-1].Location, "")
+	var restGeocodes []types.IGeoCode
+	for _, site := range sites[1 : len(sites)-1] {
+		restGeocodes = append(restGeocodes, site.Location)
+	}
+	rest := utils.TextualizeGeoCodes(restGeocodes, "via:")
 
 	request := &maps.DirectionsRequest{
 		Origin:        first,
