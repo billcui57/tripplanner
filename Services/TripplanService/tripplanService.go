@@ -13,11 +13,11 @@ func PlanTrip(sites []types.ISite, maxDrivingHours float64, hotelFindingRadius i
 	}
 	dayDrivesWithHotels := make([]types.IDayDriveWithHotel, len(dayDrives))
 	for i, dayDrive := range dayDrives {
-		hotelGeoCodes := amadeusService.FindHotelForDayDrive(dayDrive, hotelFindingRadius)
-		if hotelGeoCodes == nil {
+		hotels := amadeusService.FindHotelForDayDrive(dayDrive, hotelFindingRadius)
+		if (hotels == nil) || (len(hotels) == 0) {
 			return nil, types.ErrorNoHotelFound
 		}
-		dayDrivesWithHotels[i] = types.IDayDriveWithHotel{DayDrive: dayDrive, HotelGeoCodes: hotelGeoCodes}
+		dayDrivesWithHotels[i] = types.IDayDriveWithHotel{DayDrive: dayDrive, Hotels: hotels}
 	}
 	return dayDrivesWithHotels, nil
 }

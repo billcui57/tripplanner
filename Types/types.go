@@ -29,15 +29,20 @@ type IDayDrive struct {
 }
 
 type IDayDriveWithHotel struct {
-	DayDrive      IDayDrive  `json:"day_drive"`
-	HotelGeoCodes []IGeoCode `json:"hotel_geocodes"`
+	DayDrive IDayDrive `json:"day_drive"`
+	Hotels   []IHotel  `json:"hotels"`
 }
 
 type ISite struct {
 	Location IGeoCode `json:"location"`
 }
 
+type IHotel struct {
+	Name     string   `json:"name"`
+	Location IGeoCode `json:"location"`
+}
+
 var ErrorNotEnoughSites = errors.New("Not enough sites to get route")
 var ErrorDirectionApiFatal = errors.New("Something went wrong with Directions API")
-var ErrorNoRoutesFound = errors.New("Could not find a route")
-var ErrorNoHotelFound = errors.New("Could not find a hotel in route")
+var ErrorNoRoutesFound = errors.New("Could not find a route given constraints, please loosen constraints")
+var ErrorNoHotelFound = errors.New("Could not find enough hotels in route given constraints, please loosen constraints")
