@@ -76,7 +76,7 @@ func GetDaysDrives(sites []types.ISite, maxDrivingHours float64) ([]types.IDayDr
 
 		if (totalDrivingDuration+step.DurationInHours > maxDrivingHours) || (i == len(steps)-1) {
 			endLocation = step.EndLocation
-			daysDrives = append(daysDrives, types.IDayDrive{DurationInHours: totalDrivingDuration, DistanceInMeters: totalDrivingDistance, EndLocation: endLocation, StartLocation: startLocation})
+			daysDrives = append(daysDrives, types.IDayDrive{DurationInHours: utils.RoundFloat(totalDrivingDuration, 2), DistanceInMeters: totalDrivingDistance, EndLocation: endLocation, StartLocation: startLocation})
 			totalDrivingDuration = 0
 			startLocation = step.EndLocation
 		}

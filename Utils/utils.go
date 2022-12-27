@@ -4,6 +4,7 @@ import (
 	"fmt"
 	types "github/billcui57/tripplanner/Types"
 	"log"
+	"math"
 	"os"
 
 	"googlemaps.github.io/maps"
@@ -99,4 +100,9 @@ func GoogleStepstoSteps(steps []*maps.Step) []types.IStep {
 	}
 
 	return result
+}
+
+func RoundFloat(val float64, precision uint) float64 {
+	ratio := math.Pow(10, float64(precision))
+	return math.Round(val*ratio) / ratio
 }
