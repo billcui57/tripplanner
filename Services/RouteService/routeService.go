@@ -79,11 +79,11 @@ func GetSegmentRouteInToDaysDrives(route *maps.Route, maxDrivingHours float64) (
 		}
 
 		if (totalDrivingDuration+step.DurationInHours > maxDrivingHours) || (i == len(steps)-1) {
-			endLocation = step.EndLocation
+			endLocation = step.StartLocation
 			daysDrives = append(daysDrives, types.IDayDrive{DurationInHours: utils.RoundFloat(totalDrivingDuration, 2), DistanceInMeters: totalDrivingDistance, EndLocation: endLocation, StartLocation: startLocation})
 			totalDrivingDuration = 0
 			totalDrivingDistance = 0
-			startLocation = step.EndLocation
+			startLocation = step.StartLocation
 		}
 
 		totalDrivingDuration += step.DurationInHours

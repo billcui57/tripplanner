@@ -83,12 +83,12 @@ func GetHotelsByGeocode(getHotelsByGeocodeRequest amadeustypes.IGetHotelsByGeoco
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", accessToken))
 
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Hotel API fatal error: %s\n", err)
 		return nil, types.ErrorHotelApiFatal
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Hotel API fatal error: %s\n", err)
 		return nil, types.ErrorHotelApiFatal
 	}
 
@@ -98,14 +98,14 @@ func GetHotelsByGeocode(getHotelsByGeocodeRequest amadeustypes.IGetHotelsByGeoco
 
 	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Hotel API fatal error: %s\n", err)
 		return nil, types.ErrorHotelApiFatal
 	}
 
 	res := amadeustypes.IGetHotelsByGeocodeResponse{}
 	err = json.Unmarshal(bytes, &res)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Hotel API fatal error: %s\n", err)
 		return nil, types.ErrorHotelApiFatal
 	}
 	return &res, nil
@@ -122,7 +122,7 @@ func FindHotelForDayDrive(dayDrive types.IDayDrive, hotelFindingRadius int) ([]t
 	if err != nil {
 		return nil, err
 	}
-	var hotels []types.IHotel
+	hotels := make([]types.IHotel, 0)
 	for _, hotel := range hotelsByGeoCodeResponse.Data {
 		hotels = append(hotels, types.IHotel{Location: hotel.GeoCode, Name: hotel.Name})
 	}
