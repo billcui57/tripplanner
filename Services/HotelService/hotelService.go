@@ -28,10 +28,7 @@ func apiUrlBuilder(baseUrl string, subUrl string, searchParam string) string {
 	return url
 }
 
-func getAccessToken() {
-	if accessToken != "" {
-		return
-	}
+func getAccessToken() string {
 
 	grant_type := utils.GetEnvVar("GRANT_TYPE")
 	client_id := utils.GetEnvVar("CLIENT_ID")
@@ -71,11 +68,11 @@ func getAccessToken() {
 		log.Fatal(err)
 	}
 
-	accessToken = res.AccessToken
+	return res.AccessToken
 }
 
-func GetHotelsByGeocode(getHotelsByGeocodeRequest amadeustypes.IGetHotelsByGeocodeRequest) amadeustypes.IGetHotelsByGeocodeResponse {
-	getAccessToken()
+func GetHotelsByGeocode(getHotelsByGeocodeRequest amadeustypes.IGetHotelsByGeocodeRequest) (*amadeustypes.IGetHotelsByGeocodeResponse, error) {
+	accessToken := getAccessToken()
 	v, _ := query.Values(getHotelsByGeocodeRequest)
 	searchParams := v.Encode()
 
@@ -86,39 +83,48 @@ func GetHotelsByGeocode(getHotelsByGeocodeRequest amadeustypes.IGetHotelsByGeoco
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", accessToken))
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return nil, types.ErrorHotelApiFatal
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return nil, types.ErrorHotelApiFatal
+	}
+
+	if resp.StatusCode == 429 {
+		return nil, types.ErrorHotelApiQuotaExceeded
 	}
 
 	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return nil, types.ErrorHotelApiFatal
 	}
 
 	res := amadeustypes.IGetHotelsByGeocodeResponse{}
 	err = json.Unmarshal(bytes, &res)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return nil, types.ErrorHotelApiFatal
 	}
-	return res
+	return &res, nil
 }
 
-func FindHotelForDayDrive(dayDrive types.IDayDrive, hotelFindingRadius int) []types.IHotel {
+func FindHotelForDayDrive(dayDrive types.IDayDrive, hotelFindingRadius int) ([]types.IHotel, error) {
 	endLocation := dayDrive.EndLocation
 	hotelsByGeoCodeRequest := amadeustypes.IGetHotelsByGeocodeRequest{
 		Latitude:  endLocation.Latitude,
 		Longitude: endLocation.Longitude,
 		Radius:    hotelFindingRadius, RadiusUnit: "KM", HotelSource: "ALL",
 	}
-	hotelsByGeoCodeResponse := GetHotelsByGeocode(hotelsByGeoCodeRequest)
+	hotelsByGeoCodeResponse, err := GetHotelsByGeocode(hotelsByGeoCodeRequest)
+	if err != nil {
+		return nil, err
+	}
 	var hotels []types.IHotel
 	for _, hotel := range hotelsByGeoCodeResponse.Data {
 		hotels = append(hotels, types.IHotel{Location: hotel.GeoCode, Name: hotel.Name})
 	}
-	return hotels
+	return hotels, nil
 }
-
-var accessToken string

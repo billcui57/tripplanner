@@ -11,7 +11,7 @@ import (
 
 // add api for popularing sites latlng from site name
 
-func GetRouteSteps(sites []types.ISite) ([]types.IStep, error) { //change to use sites.latlng and not sites.name
+func GetRoute(sites []types.ISite) (*maps.Route, error) { //change to use sites.latlng and not sites.name
 	if len(sites) < 2 {
 		return nil, types.ErrorNotEnoughSites
 	}
@@ -45,6 +45,10 @@ func GetRouteSteps(sites []types.ISite) ([]types.IStep, error) { //change to use
 
 	route := routes[0]
 
+	return &route, nil
+}
+
+func getRouteSteps(route *maps.Route) ([]types.IStep, error) {
 	steps := []*maps.Step{}
 
 	for _, leg := range route.Legs {
@@ -54,9 +58,9 @@ func GetRouteSteps(sites []types.ISite) ([]types.IStep, error) { //change to use
 	return utils.GoogleStepstoSteps(steps), nil
 }
 
-func GetDaysDrives(sites []types.ISite, maxDrivingHours float64) ([]types.IDayDrive, error) {
+func GetSegmentRouteInToDaysDrives(route *maps.Route, maxDrivingHours float64) ([]types.IDayDrive, error) {
 
-	steps, err := GetRouteSteps(sites)
+	steps, err := getRouteSteps(route)
 	if err != nil {
 		return nil, err
 	}
@@ -78,6 +82,7 @@ func GetDaysDrives(sites []types.ISite, maxDrivingHours float64) ([]types.IDayDr
 			endLocation = step.EndLocation
 			daysDrives = append(daysDrives, types.IDayDrive{DurationInHours: utils.RoundFloat(totalDrivingDuration, 2), DistanceInMeters: totalDrivingDistance, EndLocation: endLocation, StartLocation: startLocation})
 			totalDrivingDuration = 0
+			totalDrivingDistance = 0
 			startLocation = step.EndLocation
 		}
 

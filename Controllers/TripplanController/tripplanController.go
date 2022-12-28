@@ -18,6 +18,7 @@ type IPlanTripRequest struct {
 type IPlanTripResponse struct {
 	DayDriveWithHotels []types.IDayDriveWithHotel `json:"day_drive_with_hotels"`
 	Sites              []types.ISite              `json:"sites"`
+	RoutePolyLine      []types.IGeoCode           `json:"route_polyline"`
 }
 
 func Plantrip(context *gin.Context) {
@@ -27,7 +28,7 @@ func Plantrip(context *gin.Context) {
 		return
 	}
 
-	dayDriveWithHotels, err := tripplanService.PlanTrip(input.Sites, input.MaxDrivingHours, input.HotelFindingRadius)
+	routePolyline, dayDriveWithHotels, err := tripplanService.PlanTrip(input.Sites, input.MaxDrivingHours, input.HotelFindingRadius)
 
 	if err != nil {
 		switch {
@@ -39,11 +40,15 @@ func Plantrip(context *gin.Context) {
 			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		case errors.Is(err, types.ErrorNotEnoughSites):
 			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		case errors.Is(err, types.ErrorHotelApiFatal):
+			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		case errors.Is(err, types.ErrorHotelApiQuotaExceeded):
+			context.JSON(http.StatusTooManyRequests, gin.H{"error": err.Error()})
 		}
 		return
 	}
 
-	response := IPlanTripResponse{DayDriveWithHotels: dayDriveWithHotels, Sites: input.Sites}
+	response := IPlanTripResponse{DayDriveWithHotels: dayDriveWithHotels, Sites: input.Sites, RoutePolyLine: routePolyline}
 	context.JSON(http.StatusOK, response)
 
 }

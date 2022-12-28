@@ -4,20 +4,34 @@ import (
 	amadeusService "github/billcui57/tripplanner/Services/HotelService"
 	routeService "github/billcui57/tripplanner/Services/RouteService"
 	types "github/billcui57/tripplanner/Types"
+	utils "github/billcui57/tripplanner/Utils"
 )
 
-func PlanTrip(sites []types.ISite, maxDrivingHours float64, hotelFindingRadius int) ([]types.IDayDriveWithHotel, error) {
-	dayDrives, err := routeService.GetDaysDrives(sites, maxDrivingHours)
+func PlanTrip(sites []types.ISite, maxDrivingHours float64, hotelFindingRadius int) ([]types.IGeoCode, []types.IDayDriveWithHotel, error) {
+	route, err := routeService.GetRoute(sites)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+	dayDrives, err := routeService.GetSegmentRouteInToDaysDrives(route, maxDrivingHours)
+	if err != nil {
+		return nil, nil, err
 	}
 	dayDrivesWithHotels := make([]types.IDayDriveWithHotel, len(dayDrives))
 	for i, dayDrive := range dayDrives {
-		hotels := amadeusService.FindHotelForDayDrive(dayDrive, hotelFindingRadius)
+		hotels, err := amadeusService.FindHotelForDayDrive(dayDrive, hotelFindingRadius)
+		if err != nil {
+			return nil, nil, err
+		}
 		if (hotels == nil) || (len(hotels) == 0) {
-			return nil, types.ErrorNoHotelFound
+			return nil, nil, types.ErrorNoHotelFound
 		}
 		dayDrivesWithHotels[i] = types.IDayDriveWithHotel{DayDrive: dayDrive, Hotels: hotels}
 	}
-	return dayDrivesWithHotels, nil
+
+	routeLatLngs, err := route.OverviewPolyline.Decode()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return utils.LatLngsToGeoCodes(routeLatLngs), dayDrivesWithHotels, nil
 }
