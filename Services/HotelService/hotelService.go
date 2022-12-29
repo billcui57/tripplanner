@@ -14,7 +14,12 @@ import (
 	"github.com/google/go-querystring/query"
 )
 
-const api = "https://test.api.amadeus.com/v1"
+func getAPIBaseURL() string {
+	if utils.GetEnvVar("APP_ENV") != "production" {
+		return "https://test.api.amadeus.com/v1"
+	}
+	return "https://api.amadeus.com/v1"
+}
 
 func apiUrlBuilder(baseUrl string, subUrl string, searchParam string) string {
 	url := baseUrl
@@ -34,7 +39,7 @@ func getAccessToken() string {
 	client_id := utils.GetEnvVar("CLIENT_ID")
 	client_secret := utils.GetEnvVar("CLIENT_SECRET")
 
-	url := apiUrlBuilder(api, "security/oauth2/token", "")
+	url := apiUrlBuilder(getAPIBaseURL(), "security/oauth2/token", "")
 
 	requestPayload := amadeustypes.IAccessTokenRequest{
 		GrantType:    grant_type,
@@ -76,7 +81,7 @@ func GetHotelsByGeocode(getHotelsByGeocodeRequest amadeustypes.IGetHotelsByGeoco
 	v, _ := query.Values(getHotelsByGeocodeRequest)
 	searchParams := v.Encode()
 
-	url := apiUrlBuilder(api, "reference-data/locations/hotels/by-geocode", searchParams)
+	url := apiUrlBuilder(getAPIBaseURL(), "reference-data/locations/hotels/by-geocode", searchParams)
 
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodGet, url, nil)
