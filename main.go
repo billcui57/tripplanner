@@ -5,6 +5,7 @@ import (
 	utils "github/billcui57/tripplanner/Utils"
 	"log"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -23,6 +24,8 @@ func main() {
 	// destination := types.IGeoCode{Latitude: 40.3390486, Longitude: -80.0671657}
 
 	engine := gin.Default()
+
+	engine.Use(cors.Default())
 
 	engine.POST("/plan-trip", tripplancontroller.Plantrip)
 
