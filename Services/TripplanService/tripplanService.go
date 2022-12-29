@@ -23,7 +23,6 @@ func PlanTrip(sites []types.ISite, maxDrivingHours float64, hotelFindingRadius i
 			return nil, nil, err
 		}
 
-		hotels = make([]types.IHotel, 0)
 		if (hotels == nil) || (len(hotels) == 0) {
 			return nil, nil, types.ErrorNoHotelFound
 		}
