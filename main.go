@@ -2,6 +2,7 @@ package main
 
 import (
 	tripplancontroller "github/billcui57/tripplanner/Controllers/TripplanController"
+	utils "github/billcui57/tripplanner/Utils"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -10,9 +11,11 @@ import (
 
 func main() {
 
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if utils.GetEnvVar("APP_ENV") != "production" {
+		err := godotenv.Load(".env")
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
 	}
 
 	// origin := types.IGeoCode{Latitude: 44.1067012, Longitude: -79.4410091}
