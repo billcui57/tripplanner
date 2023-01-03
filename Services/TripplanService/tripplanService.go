@@ -5,6 +5,7 @@ import (
 	routeService "github/billcui57/tripplanner/Services/RouteService"
 	types "github/billcui57/tripplanner/Types"
 	utils "github/billcui57/tripplanner/Utils"
+	"sync"
 )
 
 func PlanTrip(sites []types.ISite, maxDrivingHours float64, hotelFindingRadius int) ([]types.IGeoCode, []types.IDayDriveWithHotel, error) {
@@ -17,16 +18,27 @@ func PlanTrip(sites []types.ISite, maxDrivingHours float64, hotelFindingRadius i
 		return nil, nil, err
 	}
 	dayDrivesWithHotels := make([]types.IDayDriveWithHotel, len(dayDrives))
-	for i, dayDrive := range dayDrives {
-		hotels, _ := amadeusService.FindHotelForDayDrive(dayDrive, hotelFindingRadius)
-		if err != nil {
-			return nil, nil, err
-		}
-
-		if (hotels == nil) || (len(hotels) == 0) {
-			return nil, nil, types.ErrorNoHotelFound
-		}
-		dayDrivesWithHotels[i] = types.IDayDriveWithHotel{DayDrive: dayDrive, Hotels: hotels}
+	var wg sync.WaitGroup
+	errChan := make(chan error)
+	for i := range dayDrives {
+		wg.Add(1)
+		go func(index int) {
+			defer wg.Done()
+			hotels, err := amadeusService.FindHotelForDayDrive(dayDrives[index], hotelFindingRadius)
+			if err != nil {
+				errChan <- err
+				return
+			}
+			if (hotels == nil) || (len(hotels) == 0) {
+				errChan <- types.ErrorNoHotelFound
+				return
+			}
+			dayDrivesWithHotels[i] = types.IDayDriveWithHotel{DayDrive: dayDrives[index], Hotels: hotels}
+		}(i)
+		wg.Wait()
+	}
+	if len(errChan) != 0 {
+		return nil, nil, <-errChan //returns first error
 	}
 
 	routeLatLngs, err := route.OverviewPolyline.Decode()
