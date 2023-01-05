@@ -19,11 +19,13 @@ func PlanTrip(sites []types.ISite, maxDrivingHours float64, hotelFindingRadius i
 	}
 	dayDrivesWithHotels := make([]types.IDayDriveWithHotel, len(dayDrives))
 	var wg sync.WaitGroup
-	errChan := make(chan error)
+	errChan := make(chan error, len(dayDrives))
 	for i := range dayDrives {
 		wg.Add(1)
 		go func(index int) {
-			defer wg.Done()
+			defer func() {
+				wg.Done()
+			}()
 			hotels, err := amadeusService.FindHotelForDayDrive(dayDrives[index], hotelFindingRadius)
 			if err != nil {
 				errChan <- err
@@ -33,10 +35,10 @@ func PlanTrip(sites []types.ISite, maxDrivingHours float64, hotelFindingRadius i
 				errChan <- types.ErrorNoHotelFound
 				return
 			}
-			dayDrivesWithHotels[i] = types.IDayDriveWithHotel{DayDrive: dayDrives[index], Hotels: hotels}
+			dayDrivesWithHotels[index] = types.IDayDriveWithHotel{DayDrive: dayDrives[index], Hotels: hotels}
 		}(i)
-		wg.Wait()
 	}
+	wg.Wait()
 	if len(errChan) != 0 {
 		return nil, nil, <-errChan //returns first error
 	}

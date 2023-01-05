@@ -24,7 +24,7 @@ type IPlanTripResponse struct {
 func Plantrip(context *gin.Context) {
 	var input IPlanTripRequest
 	if err := context.ShouldBindJSON(&input); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -33,17 +33,17 @@ func Plantrip(context *gin.Context) {
 	if err != nil {
 		switch {
 		case errors.Is(err, types.ErrorDirectionApiFatal):
-			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			context.JSON(http.StatusInternalServerError, err.Error())
 		case errors.Is(err, types.ErrorNoHotelFound):
-			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			context.JSON(http.StatusBadRequest, err.Error())
 		case errors.Is(err, types.ErrorNoRoutesFound):
-			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			context.JSON(http.StatusBadRequest, err.Error())
 		case errors.Is(err, types.ErrorNotEnoughSites):
-			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			context.JSON(http.StatusBadRequest, err.Error())
 		case errors.Is(err, types.ErrorHotelApiFatal):
-			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			context.JSON(http.StatusInternalServerError, err.Error())
 		case errors.Is(err, types.ErrorHotelApiQuotaExceeded):
-			context.JSON(http.StatusTooManyRequests, gin.H{"error": err.Error()})
+			context.JSON(http.StatusTooManyRequests, err.Error())
 		}
 		return
 	}
