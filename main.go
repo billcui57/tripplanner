@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 
 	"github.com/go-redis/redis/v8"
 	libredis "github.com/go-redis/redis/v8"
@@ -19,23 +18,16 @@ import (
 
 func main() {
 
-	if utils.GetEnvVar("APP_ENV") != "production" {
-		err := godotenv.Load(".env")
-		if err != nil {
-			log.Fatal("Error loading .env file")
-		}
-	}
-
 	// Define a limit rate to 4 requests per hour.
-	rate, err := limiter.NewRateFromFormatted("4-H")
+	rate, err := limiter.NewRateFromFormatted("10-H")
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 	// Create a redis client.
 	client := libredis.NewClient(&redis.Options{
-		Addr:     utils.GetEnvVar("REDIS_ADDR"),
-		Password: utils.GetEnvVar("REDIS_PASSWORD"),
+		Addr:     utils.GetEnvVarOrDefault("REDIS_ADDR", "redis:6379"),
+		Password: utils.GetEnvVarOrDefault("REDIS_PASSWORD", ""),
 		DB:       0,
 	})
 

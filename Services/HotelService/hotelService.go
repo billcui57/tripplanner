@@ -15,10 +15,10 @@ import (
 )
 
 func getAPIBaseURL() string {
-	if utils.GetEnvVar("APP_ENV") != "production" {
-		return "https://test.api.amadeus.com/v1"
+	if utils.IsProduction() {
+		return "https://api.amadeus.com/v1"
 	}
-	return "https://api.amadeus.com/v1"
+	return "https://test.api.amadeus.com/v1"
 }
 
 func apiUrlBuilder(baseUrl string, subUrl string, searchParam string) string {

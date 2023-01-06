@@ -11,11 +11,23 @@ import (
 )
 
 func GetEnvVar(varName string) string {
-	envVar := os.Getenv(varName)
-	if envVar == "" {
-		log.Fatal("Env variable not set")
+	env := os.Getenv(varName)
+	if env == "" {
+		log.Fatalf("Environment variable %v not set", varName)
 	}
-	return envVar
+	return env
+}
+
+func GetEnvVarOrDefault(varName string, def string) string {
+	env := os.Getenv(varName)
+	if env == "" {
+		return def
+	}
+	return env
+}
+
+func IsProduction() bool {
+	return GetEnvVar("APP_ENV") == "production"
 }
 
 func GeoCodeToLatLng(geoCode types.IGeoCode) maps.LatLng {
