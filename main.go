@@ -1,8 +1,8 @@
 package main
 
 import (
-	tripplancontroller "github/billcui57/tripplanner/Controllers/TripplanController"
-	utils "github/billcui57/tripplanner/Utils"
+	tripplancontroller "github/billcui57/tripplanner/controllers/TripplanController"
+	utils "github/billcui57/tripplanner/utils"
 	"log"
 
 	"github.com/gin-contrib/cors"
@@ -26,7 +26,7 @@ func main() {
 	}
 	// Create a redis client.
 	client := libredis.NewClient(&redis.Options{
-		Addr:     utils.GetEnvVarOrDefault("REDIS_ADDR", "redis:6379"),
+		Addr:     utils.GetEnvVarOrDefault("REDIS_ADDR", "localhost:6379"),
 		Password: utils.GetEnvVarOrDefault("REDIS_PASSWORD", ""),
 		DB:       0,
 	})

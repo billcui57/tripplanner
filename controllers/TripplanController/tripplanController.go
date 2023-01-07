@@ -2,8 +2,8 @@ package tripplancontroller
 
 import (
 	"errors"
-	tripplanService "github/billcui57/tripplanner/Services/TripplanService"
-	types "github/billcui57/tripplanner/Types"
+	tripplanService "github/billcui57/tripplanner/services/tripplanservice"
+	types "github/billcui57/tripplanner/types"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

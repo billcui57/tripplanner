@@ -3,9 +3,9 @@ package amadeusApi
 import (
 	"encoding/json"
 	"fmt"
-	amadeustypes "github/billcui57/tripplanner/Services/HotelService/AmadeusTypes"
-	types "github/billcui57/tripplanner/Types"
-	utils "github/billcui57/tripplanner/Utils"
+	amadeustypes "github/billcui57/tripplanner/services/hotelservice/amadeustypes"
+	types "github/billcui57/tripplanner/types"
+	utils "github/billcui57/tripplanner/utils"
 	"io"
 	"log"
 	"net/http"

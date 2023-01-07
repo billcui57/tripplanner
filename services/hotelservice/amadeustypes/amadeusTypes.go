@@ -1,6 +1,6 @@
 package amadeustypes
 
-import types "github/billcui57/tripplanner/Types"
+import types "github/billcui57/tripplanner/types"
 
 type IAccessTokenRequest struct {
 	GrantType    string `url:"grant_type"`

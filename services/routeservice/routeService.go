@@ -3,8 +3,8 @@ package routeService
 import (
 	"context"
 	"fmt"
-	types "github/billcui57/tripplanner/Types"
-	utils "github/billcui57/tripplanner/Utils"
+	types "github/billcui57/tripplanner/types"
+	utils "github/billcui57/tripplanner/utils"
 
 	"googlemaps.github.io/maps"
 )

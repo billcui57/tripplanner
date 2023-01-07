@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	types "github/billcui57/tripplanner/Types"
+	types "github/billcui57/tripplanner/types"
 	"log"
 	"math"
 	"os"

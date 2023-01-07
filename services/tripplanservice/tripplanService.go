@@ -1,10 +1,10 @@
 package tripplanService
 
 import (
-	amadeusService "github/billcui57/tripplanner/Services/HotelService"
-	routeService "github/billcui57/tripplanner/Services/RouteService"
-	types "github/billcui57/tripplanner/Types"
-	utils "github/billcui57/tripplanner/Utils"
+	amadeusService "github/billcui57/tripplanner/services/hotelservice"
+	routeService "github/billcui57/tripplanner/services/routeservice"
+	types "github/billcui57/tripplanner/types"
+	utils "github/billcui57/tripplanner/utils"
 	"sync"
 )
 
