@@ -1,10 +1,10 @@
 package types
 
 type IDayDrive struct {
-	DurationInHours  float64  `json:"duration_in_hours"`
-	StartLocation    IGeoCode `json:"start_location"`
-	EndLocation      IGeoCode `json:"end_location"`
-	DistanceInMeters int      `json:"distance_in_meters"`
+	DurationInSeconds int64    `json:"duration_in_seconds"`
+	StartLocation     IGeoCode `json:"start_location"`
+	EndLocation       IGeoCode `json:"end_location"`
+	DistanceInMeters  int      `json:"distance_in_meters"`
 }
 
 // IDayDrive builder pattern code
@@ -18,8 +18,8 @@ func NewIDayDriveBuilder() *IDayDriveBuilder {
 	return b
 }
 
-func (b *IDayDriveBuilder) DurationInHours(durationInHours float64) *IDayDriveBuilder {
-	b.iDayDrive.DurationInHours = durationInHours
+func (b *IDayDriveBuilder) DurationInSeconds(durationInSeconds int64) *IDayDriveBuilder {
+	b.iDayDrive.DurationInSeconds = durationInSeconds
 	return b
 }
 

@@ -11,7 +11,7 @@ import (
 
 // add api for popularing sites latlng from site name
 
-func GetRoute(sites []types.ISite) (*maps.Route, error) { //change to use sites.latlng and not sites.name
+func GetRoute(sites []types.ISite) (*types.IRoute, error) { //change to use sites.latlng and not sites.name
 	if len(sites) < 2 {
 		return nil, types.ErrorNotEnoughSites
 	}
@@ -43,31 +43,35 @@ func GetRoute(sites []types.ISite) (*maps.Route, error) { //change to use sites.
 		return nil, types.ErrorNoRoutesFound
 	}
 
-	route := routes[0]
+	chosenRoute := routes[0]
+	steps := getRouteSteps(&chosenRoute)
 
-	return &route, nil
+	path, err := chosenRoute.OverviewPolyline.Decode()
+	if err != nil {
+		return nil, err
+	}
+	return &types.IRoute{
+		Steps: steps,
+		Path:  utils.LatLngsToGeoCodes(path),
+	}, nil
 }
 
-func getRouteSteps(route *maps.Route) ([]types.IStep, error) {
-	steps := []*maps.Step{}
+func getRouteSteps(route *maps.Route) []types.IStep {
+	var steps []*maps.Step
 
 	for _, leg := range route.Legs {
 		steps = append(steps, leg.Steps...)
 	}
 
-	return utils.GoogleStepstoSteps(steps), nil
+	return utils.GoogleStepstoSteps(steps)
 }
 
-func GetSegmentRouteInToDaysDrives(route *maps.Route, maxDrivingHours float64) ([]types.IDayDrive, error) {
+func SegmentRouteInToDaysDrives(route *types.IRoute, maxDrivingSeconds int64) ([]types.IDayDrive, error) {
 
-	steps, err := getRouteSteps(route)
-	if err != nil {
-		return nil, err
-	}
+	steps := route.Steps
+	var daysDrives []types.IDayDrive
 
-	daysDrives := []types.IDayDrive{}
-
-	var totalDrivingDuration float64
+	var totalDrivingDuration int64
 	totalDrivingDuration = 0
 	var totalDrivingDistance int
 	totalDrivingDistance = 0
@@ -77,18 +81,31 @@ func GetSegmentRouteInToDaysDrives(route *maps.Route, maxDrivingHours float64) (
 		if i == 0 {
 			startLocation = step.StartLocation
 		}
-
-		if (totalDrivingDuration+step.DurationInHours > maxDrivingHours) || (i == len(steps)-1) {
+		if totalDrivingDuration+step.DurationInSeconds > maxDrivingSeconds {
 			endLocation = step.StartLocation
-			daysDrives = append(daysDrives, types.IDayDrive{DurationInHours: utils.RoundFloat(totalDrivingDuration, 2), DistanceInMeters: totalDrivingDistance, EndLocation: endLocation, StartLocation: startLocation})
+			daysDrives = append(
+				daysDrives, types.IDayDrive{
+					DurationInSeconds: totalDrivingDuration, DistanceInMeters: totalDrivingDistance,
+					EndLocation: endLocation, StartLocation: startLocation,
+				},
+			)
 			totalDrivingDuration = 0
 			totalDrivingDistance = 0
 			startLocation = step.StartLocation
 		}
 
-		totalDrivingDuration += step.DurationInHours
+		totalDrivingDuration += step.DurationInSeconds
 		totalDrivingDistance += step.DistanceInMeters
 	}
 
+	endLocation = steps[len(steps)-1].EndLocation
+	daysDrives = append(
+		daysDrives, types.IDayDrive{
+			DurationInSeconds: totalDrivingDuration, DistanceInMeters: totalDrivingDistance,
+			EndLocation: endLocation, StartLocation: startLocation,
+		},
+	)
+
 	return daysDrives, nil
+
 }

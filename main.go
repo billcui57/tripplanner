@@ -19,23 +19,33 @@ import (
 func main() {
 
 	// Define a limit rate to 4 requests per hour.
-	rate, err := limiter.NewRateFromFormatted("10-H")
+	rate, err := func() (limiter.Rate, error) {
+		if utils.IsProduction() {
+			return limiter.NewRateFromFormatted("10-H")
+		} else {
+			return limiter.NewRateFromFormatted("1000-H")
+		}
+	}()
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 	// Create a redis client.
-	client := libredis.NewClient(&redis.Options{
-		Addr:     utils.GetEnvVarOrDefault("REDIS_ADDR", "localhost:6379"),
-		Password: utils.GetEnvVarOrDefault("REDIS_PASSWORD", ""),
-		DB:       0,
-	})
+	client := libredis.NewClient(
+		&redis.Options{
+			Addr:     utils.GetEnvVarOrDefault("REDIS_ADDR", "localhost:6379"),
+			Password: utils.GetEnvVarOrDefault("REDIS_PASSWORD", ""),
+			DB:       0,
+		},
+	)
 
 	// Create a store with the redis client.
-	store, err := sredis.NewStoreWithOptions(client, limiter.StoreOptions{
-		Prefix:   "limiter",
-		MaxRetry: 3,
-	})
+	store, err := sredis.NewStoreWithOptions(
+		client, limiter.StoreOptions{
+			Prefix:   "limiter",
+			MaxRetry: 3,
+		},
+	)
 	if err != nil {
 		log.Fatal(err)
 		return

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	types "github/billcui57/tripplanner/types"
 	"log"
-	"math"
 	"os"
 
 	"googlemaps.github.io/maps"
@@ -28,10 +27,6 @@ func GetEnvVarOrDefault(varName string, def string) string {
 
 func IsProduction() bool {
 	return GetEnvVar("APP_ENV") == "production"
-}
-
-func GeoCodeToLatLng(geoCode types.IGeoCode) maps.LatLng {
-	return maps.LatLng{Lat: geoCode.Latitude, Lng: geoCode.Longitude}
 }
 
 func LatLngToGeoCode(latLng maps.LatLng) types.IGeoCode {
@@ -60,48 +55,11 @@ func TextualizeGeoCodes(geoCodes []types.IGeoCode, prefix string) []string {
 	return result
 }
 
-func SampleNGeoCodes(geoCodes []types.IGeoCode, N int) []types.IGeoCode {
-	if N < 2 {
-		log.Fatal("Must sample enough points to include start and end")
-	}
-
-	chunkSize := len(geoCodes) / N
-
-	var sampledGeoCodes []types.IGeoCode
-	for {
-		if len(geoCodes) == 0 {
-			break
-		}
-
-		if len(geoCodes) < chunkSize {
-			chunkSize = len(geoCodes)
-			sampledGeoCodes = append(sampledGeoCodes, geoCodes[0:chunkSize][len(geoCodes)-1])
-		} else {
-			sampledGeoCodes = append(sampledGeoCodes, geoCodes[0:chunkSize][0])
-		}
-
-		geoCodes = geoCodes[chunkSize:]
-
-	}
-	return sampledGeoCodes
-}
-
-func GoogleLegToLeg(leg maps.Leg) types.ILeg {
-	return types.ILeg{DistanceInMeters: leg.Distance.Meters, DurationInHours: leg.Duration.Hours(), StartLocation: LatLngToGeoCode(leg.StartLocation), EndLocation: LatLngToGeoCode(leg.EndLocation)}
-}
-
-func GoogleLegsToLegs(legs []*maps.Leg) []types.ILeg {
-
-	result := make([]types.ILeg, len(legs))
-	for i, leg := range legs {
-		result[i] = GoogleLegToLeg(*leg)
-	}
-
-	return result
-}
-
 func GoogleSteptoStep(step maps.Step) types.IStep {
-	return types.IStep{DistanceInMeters: step.Distance.Meters, DurationInHours: step.Duration.Hours(), StartLocation: LatLngToGeoCode(step.StartLocation), EndLocation: LatLngToGeoCode(step.EndLocation)}
+	return types.IStep{
+		DistanceInMeters: step.Distance.Meters, DurationInSeconds: int64(step.Duration.Seconds()),
+		StartLocation: LatLngToGeoCode(step.StartLocation), EndLocation: LatLngToGeoCode(step.EndLocation),
+	}
 }
 
 func GoogleStepstoSteps(steps []*maps.Step) []types.IStep {
@@ -112,9 +70,4 @@ func GoogleStepstoSteps(steps []*maps.Step) []types.IStep {
 	}
 
 	return result
-}
-
-func RoundFloat(val float64, precision uint) float64 {
-	ratio := math.Pow(10, float64(precision))
-	return math.Round(val*ratio) / ratio
 }

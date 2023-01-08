@@ -11,14 +11,14 @@ import (
 
 type IPlanTripRequest struct {
 	Sites              []types.ISite `json:"sites" binding:"required"`
-	MaxDrivingHours    float64       `json:"max_driving_hours" binding:"required"`
+	MaxDrivingSeconds  int64         `json:"max_driving_seconds" binding:"required"`
 	HotelFindingRadius int           `json:"hotel_finding_radius" binding:"required"`
 }
 
 type IPlanTripResponse struct {
 	DayDriveWithHotels []types.IDayDriveWithHotel `json:"day_drive_with_hotels"`
 	Sites              []types.ISite              `json:"sites"`
-	RoutePolyLine      []types.IGeoCode           `json:"route_polyline"`
+	LeanRoute          types.ILeanRoute           `json:"lean_route"`
 }
 
 func Plantrip(context *gin.Context) {
@@ -28,7 +28,9 @@ func Plantrip(context *gin.Context) {
 		return
 	}
 
-	routePolyline, dayDriveWithHotels, err := tripplanService.PlanTrip(input.Sites, input.MaxDrivingHours, input.HotelFindingRadius)
+	leanRoute, dayDriveWithHotels, err := tripplanService.PlanTrip(
+		input.Sites, input.MaxDrivingSeconds, input.HotelFindingRadius,
+	)
 
 	if err != nil {
 		switch {
@@ -48,7 +50,7 @@ func Plantrip(context *gin.Context) {
 		return
 	}
 
-	response := IPlanTripResponse{DayDriveWithHotels: dayDriveWithHotels, Sites: input.Sites, RoutePolyLine: routePolyline}
+	response := IPlanTripResponse{DayDriveWithHotels: dayDriveWithHotels, Sites: input.Sites, LeanRoute: *leanRoute}
 	context.JSON(http.StatusOK, response)
 
 }

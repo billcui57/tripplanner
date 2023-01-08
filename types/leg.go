@@ -1,10 +1,10 @@
 package types
 
 type ILeg struct {
-	DistanceInMeters int      `json:"distance_in_meters"`
-	DurationInHours  float64  `json:"duration_in_hours"`
-	StartLocation    IGeoCode `json:"start_location"`
-	EndLocation      IGeoCode `json:"end_location"`
+	DistanceInMeters  int      `json:"distance_in_meters"`
+	DurationInSeconds int64    `json:"duration_in_seconds"`
+	StartLocation     IGeoCode `json:"start_location"`
+	EndLocation       IGeoCode `json:"end_location"`
 }
 
 // ILeg builder pattern code
@@ -23,8 +23,8 @@ func (b *ILegBuilder) DistanceInMeters(distanceInMeters int) *ILegBuilder {
 	return b
 }
 
-func (b *ILegBuilder) DurationInHours(durationInHours float64) *ILegBuilder {
-	b.iLeg.DurationInHours = durationInHours
+func (b *ILegBuilder) DurationInSeconds(durationInSeconds int64) *ILegBuilder {
+	b.iLeg.DurationInSeconds = durationInSeconds
 	return b
 }
 
